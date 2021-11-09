@@ -25,7 +25,9 @@ export function WalletState() {
     inProgress,
     queryInProgress,
     confirmedAccount,
+    // crowdloans,
     refreshConfirmedAccount,
+    refreshCrowdloans,
   } = useMultisigContext();
   const [isAccountsDisplay, setIsAccountsDisplay] = useState<boolean>(false);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
@@ -87,8 +89,11 @@ export function WalletState() {
   }, [multisigAccount?.address, t, history]);
 
   useEffect(() => {
-    const id = setInterval(() => refreshConfirmedAccount(), LONG_DURATION);
-
+    const refresh = () => {
+      refreshConfirmedAccount();
+      refreshCrowdloans();
+    };
+    const id = setInterval(() => refresh, LONG_DURATION);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

@@ -8,10 +8,10 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { CROWDLOANS_QUERY, TRANSFERS_QUERY } from '../config';
 import { useApi } from '../hooks';
-import { useCrowdloanContext, useMultisigContext } from '../hooks/multisigContext';
+import { useMultisigContext } from '../hooks/multisigContext';
 import { IExtrinsic, parseArgs } from '../utils';
 import { Entries } from './Entries';
-import { CrowdloanEntries } from './AuctionEntries';
+import { CrowdloanEntries } from './CrowdloanEntries';
 
 interface CrowdloanQueryRes {
   transfers: { totalCount: number; nodes: Transfer[] };
@@ -31,13 +31,11 @@ interface Transfer {
 }
 
 interface CrowdloanQueryRes {
-  crwodloans: { totalCount: number; nodes: Crowdloan[] };
+  crowdloans: { totalCount: number; nodes: Crowdloan[] };
 }
 
 interface Crowdloan {
   id: string;
-  proxy: string;
-  multisig: string;
   blockHeight: string;
   blockId: string;
   paraId: string;
@@ -122,40 +120,31 @@ function Confirmed({ accountAddress, multiAddress }: ConfirmedProps) {
   );
 }
 
-function Crowdloan({ accountAddress }: ConfirmedProps) {
+function Crowdloan({ accountAddress, multiAddress }: ConfirmedProps) {
   const { api } = useApi();
+  console.warn(`query crowdloans`);
   const { data } = useQuery<CrowdloanQueryRes>(CROWDLOANS_QUERY, {
     variables: {
+      account: multiAddress,
       offset: 0,
-      limit: 20,
+      first: 30,
     },
   });
+
   const extrinsic = useMemo(() => {
-    if (!data?.crwodloans || !api) {
+    if (!data?.crowdloans || !api) {
       return [];
     }
 
-    const { nodes } = data?.crwodloans;
+    const { nodes } = data?.crowdloans;
 
     return nodes.map((node) => {
-      const {
-        proxy,
-        multisig,
-        blockHeight,
-        blockId,
-        paraId,
-        account,
-        amount,
-        referralCode,
-        transactionExecuted,
-        executedBlockHeight,
-      } = node;
+      const { blockHeight, blockId, paraId, account, amount, referralCode, transactionExecuted, executedBlockHeight } =
+        node;
 
       return {
         address: account,
-        proxyAddr: proxy,
-        multisigAddr: multisig,
-        paraId,
+        paraId: paraId.toString(),
         amount,
         referralCode,
         height: transactionExecuted ? executedBlockHeight : blockHeight,
@@ -163,10 +152,10 @@ function Crowdloan({ accountAddress }: ConfirmedProps) {
         status: transactionExecuted ? 'executed' : 'waitting',
       };
     });
-  }, [api, data?.crwodloans]);
+  }, [api, data?.crowdloans]);
 
   return accountAddress ? (
-    <CrowdloanEntries source={extrinsic} account={accountAddress} isConfirmed />
+    <CrowdloanEntries source={extrinsic} account={accountAddress} />
   ) : (
     <Spin className="w-full mt-4" />
   );
@@ -176,8 +165,7 @@ function Crowdloan({ accountAddress }: ConfirmedProps) {
 export function ExtrinsicRecords() {
   const { t } = useTranslation();
   const { account: multiAddress } = useParams<{ account: string }>();
-  const { multisigAccount, inProgress, confirmedAccount } = useMultisigContext();
-  const { crowdloans } = useCrowdloanContext();
+  const { multisigAccount, inProgress, confirmedAccount, crowdloans } = useMultisigContext();
 
   return (
     <Tabs>

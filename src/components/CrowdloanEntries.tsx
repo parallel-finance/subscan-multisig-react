@@ -1,48 +1,62 @@
 import BaseIdentityIcon from '@polkadot/react-identicon';
-import { Call } from '@polkadot/types/interfaces';
 import { KeyringAddress } from '@polkadot/ui-keyring/types';
 import { Button, Collapse, Empty, Space, Table, Typography } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { useCallback } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { useApi, useIsInjected } from '../hooks';
+import { useIsInjected } from '../hooks';
 import { CrowdloanEntry, CrowdloanActionType } from '../model';
-import { genExpandIcon } from './expandIcon';
+// import { genExpandIcon } from './expandIcon';
 import { SubscanLink } from './SubscanLink';
 
 export interface CrowdloanEntriesProps {
   source: CrowdloanEntry[];
   account: KeyringAddress;
-  isConfirmed?: boolean;
 }
 
 const { Title } = Typography;
 const { Panel } = Collapse;
 
-const renderMethod = (data: Call | undefined | null) => {
-  const call = data?.toHuman();
-
-  if (call) {
-    return call.section + '(' + call.method + ')';
-  } else {
-    return '-';
-  }
-};
-
-const renderContribution = (paraId: string, amount: string, height: string) => {
+const renderHeight = (entry: CrowdloanEntry) => {
+  const { height } = entry;
   return (
     <SubscanLink block={height}>
-      <Trans>
-        {paraId}, {amount}
-      </Trans>
+      <Trans>{height}</Trans>
     </SubscanLink>
   );
 };
 
-export function CrowdloanEntries({ source, isConfirmed }: CrowdloanEntriesProps) {
+const renderAddress = (entry: CrowdloanEntry) => {
+  const { address } = entry;
+  return (
+    <SubscanLink address={address}>
+      <Trans>{address}</Trans>
+    </SubscanLink>
+  );
+};
+
+const renderCrowdloanContribution = (entry: CrowdloanEntry) => {
+  const { paraId, amount } = entry;
+  return renderContribution(paraId, amount);
+};
+
+const renderContribution = (paraId: string, amount: string) => {
+  return (
+    <Trans>
+      {paraId}, {amount}
+    </Trans>
+  );
+};
+
+const renderStatus = (entry: CrowdloanEntry) => {
+  const { status } = entry;
+  return <Trans>{status}</Trans>;
+};
+
+export function CrowdloanEntries({ source }: CrowdloanEntriesProps) {
   const { t } = useTranslation();
   const isInjected = useIsInjected();
-  const { network } = useApi();
+  // const { network } = useApi();
   const renderAction = useCallback(
     // eslint-disable-next-line complexity
     (row: CrowdloanEntry) => {
@@ -69,28 +83,32 @@ export function CrowdloanEntries({ source, isConfirmed }: CrowdloanEntriesProps)
 
   const columns: ColumnsType<CrowdloanEntry> = [
     {
-      title: t(!isConfirmed ? 'call_hash' : 'block_hash'),
-      dataIndex: 'hash',
+      title: t('height'),
+      dataIndex: 'height',
       align: 'center',
-      render(hash: string) {
-        return isConfirmed ? <SubscanLink block={hash} /> : hash;
-      },
+      render: (_, row) => renderHeight(row),
     },
     {
-      title: t('actions'),
-      dataIndex: 'callData',
+      title: t('address'),
+      dataIndex: 'address',
       align: 'center',
-      render: renderMethod,
+      render: (_, row) => renderAddress(row),
+    },
+    {
+      title: t('contribution'),
+      dataIndex: 'contribution',
+      align: 'center',
+      render: (_, row) => renderCrowdloanContribution(row),
     },
     {
       title: t('status.index'),
       key: 'status',
       align: 'center',
-      render: (_, row) => renderAction(row),
+      render: (_, row) => renderStatus(row),
     },
   ];
   const expandedRowRender = (entry: CrowdloanEntry) => {
-    const { address, height, paraId, amount } = entry;
+    const { address, paraId, amount } = entry;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const progressColumnsNested: ColumnsType<any> = [
       { dataIndex: 'paraId' },
@@ -105,18 +123,18 @@ export function CrowdloanEntries({ source, isConfirmed }: CrowdloanEntriesProps)
       },
       {
         key: 'contribution',
-        render: () => renderContribution(paraId, amount, height),
+        render: () => renderContribution(paraId, amount),
       },
     ];
 
     return (
       <>
-        <Title level={5}>{t('progress')}</Title>
+        <Title level={5}>{t('Specifics')}</Title>
         <Table
           columns={progressColumnsNested}
           pagination={false}
           bordered
-          rowKey="address"
+          rowKey={(record) => record.blockHash ?? (record.blockHash as string)}
           showHeader={false}
           className="mb-4 mx-4"
         />
@@ -124,24 +142,27 @@ export function CrowdloanEntries({ source, isConfirmed }: CrowdloanEntriesProps)
     );
   };
 
+  console.warn(typeof expandedRowRender);
   return (
     <>
       <Table
         dataSource={source}
         columns={columns}
-        // rowKey={(record) => record.callHash ?? (record.blockHash as string)}
+        rowKey={(record) => record.blockHash ?? (record.blockHash as string)}
         pagination={false}
-        expandable={{
-          expandedRowRender,
-          expandIcon: genExpandIcon(network),
-        }}
-        className="lg:block hidden"
+        expandable={
+          {
+            // expandedRowRender,
+            // expandIcon: genExpandIcon(network),
+          }
+        }
+        // className="lg:block hidden"
       ></Table>
 
       <Space direction="vertical" className="lg:hidden block">
         {source.map((data) => {
-          const { status, address, paraId, amount, height } = data;
-
+          const { status, address, paraId, amount } = data;
+          console.warn(`status is ${status}, address is ${address}, paraId is ${paraId}, amount, height`);
           return (
             <Collapse key={address} expandIcon={() => <></>} className="wallet-collapse">
               <Panel
@@ -152,7 +173,7 @@ export function CrowdloanEntries({ source, isConfirmed }: CrowdloanEntriesProps)
                     </Typography.Text>
 
                     <div className="flex items-center">
-                      <Typography.Text>{renderContribution(paraId, amount, height)}</Typography.Text>
+                      <Typography.Text>{renderContribution(paraId, amount)}</Typography.Text>
                     </div>
                   </Space>
                 }

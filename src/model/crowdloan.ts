@@ -2,8 +2,6 @@ import { PartialQueueTxExtrinsic } from '@polkadot/react-components/Status/types
 
 export interface CrowdloanEntry {
   address: string;
-  proxyAddr: string;
-  multisigAddr: string;
   paraId: string;
   amount: string;
   referralCode: string;
