@@ -82,6 +82,7 @@
   },
   "multisig": {
     "Confirmed Extrinsic": "Confirmed Extrinsic",
+    "Crowdloan Extrinsic": "Crowdloan Extrinsic",
     "In Progress": "In Progress",
     "Members": "Members",
     "Threshold": "Threshold",

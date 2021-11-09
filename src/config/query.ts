@@ -5,6 +5,7 @@ export const TRANSFERS_COUNT_QUERY = `
     }
   }
 `;
+
 export const TRANSFERS_QUERY = `
   query transfers($account: String!, $offset: Int, $limit: Int) {
     transfers(offset: $offset, last: $limit, filter: { fromId: { equalTo: $account } }, orderBy: TIMESTAMP_DESC) {
@@ -28,6 +29,33 @@ export const TRANSFERS_QUERY = `
             }
           }
         }
+      }
+    }
+  }
+`;
+
+export const CROWDLOANS_COUNT_QUERY = `
+  query crowdloans($account: String!) {
+    crowdloans(filter: { multisig: { equalTo: $account } }) {
+      totalCount
+    }
+  }
+`;
+
+export const CROWDLOANS_QUERY = `
+  query crowdloans($offset: Int, $first: Int) {
+    crowdloans(offset: $offset, first: $first, orderBy: TIMESTAMP_DESC) {
+      totalCount
+      nodes {
+        id
+        blockHeight
+        paraId
+        account
+        amount
+        referralCode
+        transactionExecuted
+        isValid
+        executedBlockHeight
       }
     }
   }

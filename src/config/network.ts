@@ -16,6 +16,7 @@ export const NETWORK_CONFIG: NetworkConfig = {
     rpc: 'wss://polkadot.api.onfinality.io/public-ws',
     api: {
       subql: 'https://api.subquery.network/sq/parallel-finance/multisig-subql-polkadot',
+      crowdloan: 'https://api.subquery.network/sq/parallel-finance/auction-subquery',
     },
     donate: {
       address: '14RYaXRSqb9rPqMaAVp1UZW2czQ6dMNGMbvukwfifi6m8ZgZ',
