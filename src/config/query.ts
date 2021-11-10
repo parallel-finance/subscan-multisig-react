@@ -43,11 +43,13 @@ export const CROWDLOANS_COUNT_QUERY = `
 `;
 
 export const CROWDLOANS_QUERY = `
-  query crowdloans($offset: Int, $first: Int) {
-    crowdloans(offset: $offset, first: $first, orderBy: TIMESTAMP_DESC) {
+  query crowdloans($account: String!, $offset: Int, $first: Int) {
+    crowdloans(offset: $offset, first: $first, filter: { multisig: { equalTo: $account} }, orderBy: TIMESTAMP_DESC) {
       totalCount
       nodes {
         id
+        multisig
+        proxy
         blockHeight
         paraId
         account

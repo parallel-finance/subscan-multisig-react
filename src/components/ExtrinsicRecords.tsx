@@ -127,7 +127,7 @@ function Crowdloan({ accountAddress, multiAddress }: ConfirmedProps) {
     variables: {
       account: multiAddress,
       offset: 0,
-      first: 30,
+      first: 40,
     },
   });
 
