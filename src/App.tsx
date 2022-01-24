@@ -100,7 +100,7 @@ function App() {
               overlay={
                 <Menu>
                   {networks
-                    .filter((v, _i) => v.fullName === 'Polkadot' || v.fullName === 'Kusama')
+                    .filter((v, _i) => v.fullName === 'Polkadot' || v.fullName === 'Kusama' || v.fullName === 'Acala')
                     .map((item) => (
                       <Menu.Item
                         key={item.name}

@@ -45,6 +45,26 @@ export const NETWORK_CONFIG: NetworkConfig = {
       address: 'Fzs6WWFcAuJhxAVyZa4EN2suxggjidJjV3AzJxKbRHjh2Jc',
     },
   },
+  acala: {
+    facade: {
+      logo: '/image/acala-button-mobile.svg',
+      logoWithText: '/image/acala-button.svg',
+    },
+    fullName: 'Acala',
+    ss58Prefix: 10,
+    token: { native: 'ACA' },
+    erc20: {
+      ring: '',
+      kton: '',
+    },
+    rpc: 'wss://acala-rpc-0.aca-api.network',
+    api: {
+      subql: '',
+    },
+    donate: {
+      address: '',
+    },
+  },
   darwinia: {
     // TODO
     facade: {
