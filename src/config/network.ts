@@ -57,7 +57,7 @@ export const NETWORK_CONFIG: NetworkConfig = {
       ring: '',
       kton: '',
     },
-    rpc: 'wss://acala-rpc-0.aca-api.network',
+    rpc: 'wss://acala-polkadot.api.onfinality.io/public-ws',
     api: {
       subql: '',
     },
@@ -181,6 +181,12 @@ const networkSimple: Record<string, NetworkSimpleInfo> = {
     network: 'edgeware',
     hasLink: true,
   },
+  acala: {
+    prefix: 10,
+    name: 'Acala',
+    network: 'acala',
+    hasLink: true,
+  },
   kulupu: {
     prefix: 16,
     network: 'kulupu',
@@ -210,12 +216,6 @@ const networkSimple: Record<string, NetworkSimpleInfo> = {
     prefix: 38,
     name: 'kilt-testnet',
     network: 'kilt-testnet',
-    hasLink: true,
-  },
-  acala: {
-    prefix: 42,
-    name: 'Acala Mandala',
-    network: 'acala-testnet',
     hasLink: true,
   },
   clover: {

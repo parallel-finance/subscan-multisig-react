@@ -52,12 +52,6 @@ const AutoMultiAccounts: FC = ({ children }) => {
       scope: acaAccounts.scope as Network[],
     });
 
-    // delete the old multi-sig address
-    keyring.forgetAccount('121JsfeSGqCZTP7tEiDCMzo2t4KfshJeHT3X8EoQhdbhuC78');
-
-    // delete the old multi-sig address
-    keyring.forgetAccount('121JsfeSGqCZTP7tEiDCMzo2t4KfshJeHT3X8EoQhdbhuC78');
-
     setIsReady(true);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
