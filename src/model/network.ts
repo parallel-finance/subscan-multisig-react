@@ -21,17 +21,33 @@ interface Donate {
 }
 
 export interface NetConfig {
-  facade: Facade;
   fullName: string;
   rpc: string;
-  ss58Prefix: SS58Prefix;
-  token: TokenRecord;
-  erc20: TokenRecord;
-  api: Api;
-  donate: Donate;
+  api?: Api;
+  facade?: Facade;
+  ss58Prefix?: SS58Prefix;
+  token?: TokenRecord;
+  erc20?: TokenRecord;
+  donate?: Donate;
+  isTest?: boolean;
+  explorerHostName?: string;
+}
+
+export interface NetConfigV2 {
+  name: string;
+  displayName: string;
+  rpc: string;
+  isTestnet?: boolean;
+  logo?: string;
+  api?: Api;
+  explorerHostName?: string;
+  themeColor?: string;
+  headerBackground?: string;
 }
 
 export type NetworkConfig<T = NetConfig> = Config<Network, T>;
+
+export type NetworkConfigV2 = { [key: string]: NetConfigV2 | undefined };
 
 export type TxStatus =
   | 'future'
@@ -59,3 +75,8 @@ export type TxStatus =
  * pending: initial state, indicate that the connection never launched.
  */
 export type ConnectStatus = 'pending' | 'connecting' | 'success' | 'fail' | 'disconnected';
+
+export interface CustomNetConfig {
+  fullName: string;
+  rpc: string;
+}
