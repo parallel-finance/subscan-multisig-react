@@ -1,19 +1,20 @@
 import { AnyJson } from '@polkadot/types/types';
 import keyring from '@polkadot/ui-keyring';
 import { KeyringAddress, KeyringJson } from '@polkadot/ui-keyring/types';
-import { u8aToHex } from '@polkadot/util';
+import { encodeAddress } from '@polkadot/util-crypto';
 import { difference, intersection } from 'lodash';
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { NETWORK_CONFIG } from '../config';
-import { convertToSS58 } from '../utils';
 import { Entry } from '../model';
+import { convertToSS58 } from '../utils';
 import { useApi } from './api';
 
 export function useMultisig(acc?: string) {
   const [multisigAccount, setMultisigAccount] = useState<KeyringAddress | null>(null);
-  const { api, networkStatus, network } = useApi();
+  const { api, networkStatus, chain } = useApi();
   const { account } = useParams<{ account: string }>();
+  const ss58Account = encodeAddress(account, Number(chain.ss58Format));
+
   const [inProgress, setInProgress] = useState<Entry[]>([]);
   const [loadingInProgress, setLoadingInProgress] = useState(false);
   const queryInProgress = useCallback(async () => {
@@ -23,10 +24,10 @@ export function useMultisig(acc?: string) {
 
     setLoadingInProgress(true);
 
-    const multisig = keyring.getAccount(acc ?? account);
+    const multisig = keyring.getAccount(acc ?? ss58Account);
     // Use different ss58 addresses
     (multisig?.meta.addressPair as KeyringJson[])?.forEach((key) => {
-      key.address = convertToSS58(key.address, NETWORK_CONFIG[network].ss58Prefix);
+      key.address = convertToSS58(key.address, Number(chain.ss58Format));
     });
 
     const data = await api.query.multisig.multisigs.entries(multisig?.address);
@@ -40,29 +41,33 @@ export function useMultisig(acc?: string) {
         callHash,
       };
     });
+
     const callInfos = await api?.query.multisig.calls.multi(result.map((item) => item.callHash || ''));
+    // eslint-disable-next-line complexity
     const calls: Entry[] = callInfos?.map((callInfo, index) => {
-      const call = callInfo.toHuman() as AnyJson[];
+      const call = callInfo.toJSON() as AnyJson[];
 
       if (!call) {
-        return { ...result[index], callData: null, meta: {}, hash: result[index].callHash };
+        return { ...result[index], callDataJson: {}, meta: {}, hash: result[index].callHash };
       }
 
       try {
         const callData = api.registry.createType('Call', call[0]);
-        const hexCallData = u8aToHex(callData.toU8a());
-        const meta = api?.tx[callData?.section][callData.method].meta.toJSON();
+        const { section, method } = api.registry.findMetaCall(callData.callIndex);
+        const callDataJson = { ...callData.toJSON(), section, method };
+        const hexCallData = call[0];
+        const meta = api?.tx[callDataJson?.section][callDataJson.method].meta.toJSON();
 
-        return { ...result[index], callData, meta, hash: result[index].callHash, hexCallData };
-      } catch (_) {
-        return { ...result[index], callData: null, meta: {}, hash: result[index].callHash };
+        return { ...result[index], callDataJson, callData, meta, hash: result[index].callHash, hexCallData };
+      } catch {
+        return { ...result[index], callDataJson: {}, meta: {}, hash: result[index].callHash };
       }
     });
 
     setMultisigAccount(multisig || null);
     setInProgress(calls || []);
     setLoadingInProgress(false);
-  }, [api, acc, account, network]);
+  }, [api, acc, ss58Account, chain]);
 
   useEffect(() => {
     if (networkStatus !== 'success') {
