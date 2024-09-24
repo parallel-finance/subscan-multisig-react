@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   
 env:
-  AWS_S3_BUCKET_NAME: multisig-production
+  AWS_S3_BUCKET_NAME: parallel-multisig-production
   AWS_REGION: us-east-2
   AWS_CLOUDFRONT_DISTRIBUTION_ID: EOE2FT3RXE5GE
   CLOUDFLARE_PURGE_URLS: '["https://multisig.parallel.fi/"]'
@@ -13,11 +13,6 @@ jobs:
   deploy:
     name: Deploy to S3
     runs-on: ubuntu-latest
-    if: |
-      github.event.sender.id == 78835349 ||
-      github.event.sender.id == 13250462 ||
-      github.event.sender.id == 12026976
-    # github.event.sender.id=Carlos Yvan Andrew
     steps:
     - uses: actions/checkout@v2
     - name: Use Node 14
