@@ -1,6 +1,9 @@
 name: multisig-production-deploy
 
 on: 
+  push:
+    branches:
+      - sync-latest-upstream-code
   workflow_dispatch:
   
 env:
